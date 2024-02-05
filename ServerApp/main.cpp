@@ -1,20 +1,67 @@
-// ServerApp.cpp : Ce fichier contient la fonction 'main'. L'exécution du programme commence et se termine à cet endroit.
-//
-
 #include <iostream>
+#include <Winsock2.h>
 
-int main()
-{
-    std::cout << "Hello World!\n";
+#pragma comment(lib, "ws2_32.lib")
+
+int main() {
+    // Initialisation de Winsock
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        std::cerr << "Erreur lors de l'initialisation de Winsock." << std::endl;
+        return 1;
+    }
+
+    // Cr�ation du socket
+    SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (serverSocket == INVALID_SOCKET) {
+        std::cerr << "Erreur lors de la cr�ation du socket." << std::endl;
+        WSACleanup();
+        return 1;
+    }
+
+    // Configuration de l'adresse et du port
+    sockaddr_in serverAddress;
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = INADDR_ANY;
+    serverAddress.sin_port = htons(12345);
+
+    // Liaison du socket � l'adresse et au port
+    if (bind(serverSocket, (sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
+        std::cerr << "Erreur lors de la liaison du socket." << std::endl;
+        closesocket(serverSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    // Mise en mode �coute
+    if (listen(serverSocket, SOMAXCONN) == SOCKET_ERROR) {
+        std::cerr << "Erreur lors de la mise en mode �coute." << std::endl;
+        closesocket(serverSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    std::cout << "Serveur en attente de connexions..." << std::endl;
+
+    // Accepter une connexion entrante
+    SOCKET clientSocket = accept(serverSocket, NULL, NULL);
+    if (clientSocket == INVALID_SOCKET) {
+        std::cerr << "Erreur lors de l'acceptation de la connexion." << std::endl;
+        closesocket(serverSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    // Envoyer une variable au client
+    int variableAEnvoyer = 42;
+    send(clientSocket, (char*)&variableAEnvoyer, sizeof(variableAEnvoyer), 0);
+
+    // Fermer les sockets
+    closesocket(clientSocket);
+    closesocket(serverSocket);
+
+    // Lib�rer Winsock
+    WSACleanup();
+
+    return 0;
 }
-
-// Exécuter le programme : Ctrl+F5 ou menu Déboguer > Exécuter sans débogage
-// Déboguer le programme : F5 ou menu Déboguer > Démarrer le débogage
-
-// Astuces pour bien démarrer : 
-//   1. Utilisez la fenêtre Explorateur de solutions pour ajouter des fichiers et les gérer.
-//   2. Utilisez la fenêtre Team Explorer pour vous connecter au contrôle de code source.
-//   3. Utilisez la fenêtre Sortie pour voir la sortie de la génération et d'autres messages.
-//   4. Utilisez la fenêtre Liste d'erreurs pour voir les erreurs.
-//   5. Accédez à Projet > Ajouter un nouvel élément pour créer des fichiers de code, ou à Projet > Ajouter un élément existant pour ajouter des fichiers de code existants au projet.
-//   6. Pour rouvrir ce projet plus tard, accédez à Fichier > Ouvrir > Projet et sélectionnez le fichier .sln.
