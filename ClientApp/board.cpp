@@ -16,7 +16,7 @@ struct Render {
     sf::Event* pEvent;
     int iWidth;
     int iHeight;
-    void Update(); // Update SFML Render
+    // Update SFML Render
 };
 
 sf::Vector2i getMousePosition(Render render) {
