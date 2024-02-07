@@ -10,6 +10,15 @@ enum class Symbol {
     O
 };
 
+enum class Symbol;
+
+
+struct Player {
+    std::string name;
+    Symbol symbol;
+    int score;
+};
+
 struct Render;
 struct Player;
 

@@ -4,6 +4,26 @@
 
 #include "Defines.h"
 
+namespace sf {
+    class RenderWindow;
+    class Event;
+}
+
+
+
+struct Render {
+    sf::RenderWindow* pWindow;
+    sf::Event* pEvent;
+    int iWidth;
+    int iHeight;
+    void Update(); // Update SFML Render
+};
+
+sf::Vector2i getMousePosition(Render render) {
+    sf::Vector2i currentPosition = sf::Mouse::getPosition((*(render.pWindow)));
+    return currentPosition;
+}
+
 Morpion::Morpion() {
     for (int i = 0; i < 9; ++i) {
         board[i] = Symbol::Empty;
